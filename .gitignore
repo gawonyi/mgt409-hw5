@@ -1,0 +1,19 @@
+# secrets
+.env
+.env.*
+!.env.example
+*.key
+
+# python
+__pycache__/
+*.pyc
+.venv/
+
+# node / vite
+node_modules/
+frontend/dist/
+
+# misc
+.DS_Store
+*.json.tmp
+data.zip

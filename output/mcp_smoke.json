@@ -1,0 +1,107 @@
+{
+  "test": "Problem 4 MCP smoke test",
+  "mcp_config": ".mcp.json (server: campus-customs)",
+  "client": "PydanticAI agent via Portkey",
+  "model": "gpt-6-luna",
+  "run_at": "2026-10-13T14:42:07+00:00",
+  "all_match_db": true,
+  "results": [
+    {
+      "ticket": 101,
+      "prompt": "Ticket 101: Tauhid Zaman wants one CC-TEE-WHITE in size S. Use the campus-customs MCP server to check whether that size is in stock.",
+      "tool_name": "check_stock_by_sku_size",
+      "tool_args": {
+        "sku": "CC-TEE-WHITE",
+        "size": "S"
+      },
+      "tool_output": {
+        "found": true,
+        "sku": "CC-TEE-WHITE",
+        "name": "Classic Bulldog Tee",
+        "size": "S",
+        "qty_on_hand": 0,
+        "location": "Aisle B",
+        "in_stock": false,
+        "other_sizes": [
+          {
+            "size": "L",
+            "qty": 3
+          },
+          {
+            "size": "M",
+            "qty": 5
+          },
+          {
+            "size": "XL",
+            "qty": 2
+          }
+        ]
+      },
+      "model_answer": "CC-TEE-WHITE in size S is out of stock (0 on hand).",
+      "db_check": {
+        "database": "data/campus_customs_new.db",
+        "sql": "SELECT qty AS qty_on_hand, location FROM inventory WHERE sku='CC-TEE-WHITE' AND size='S'",
+        "expected": {
+          "qty_on_hand": 0,
+          "location": "Aisle B"
+        },
+        "matches_db": true
+      }
+    },
+    {
+      "ticket": 102,
+      "prompt": "Ticket 102 is a rent notice for lease 1. Use the campus-customs MCP server to look up the landlord, monthly rent, and next due date.",
+      "tool_name": "get_lease_rent_due",
+      "tool_args": {
+        "lease_id": 1
+      },
+      "tool_output": {
+        "found": true,
+        "lease_id": 1,
+        "space_name": "Chapel Street shop",
+        "landlord": "Elm City Properties",
+        "monthly_rent": 2400.0,
+        "next_due": "2026-09-02",
+        "shop_date_today": "2026-08-31",
+        "days_until_due": 2,
+        "notes": null
+      },
+      "model_answer": "Lease 1\u2019s landlord is Elm City Properties, the monthly rent is $2,400, and the next due date is 2026-09-02.",
+      "db_check": {
+        "database": "data/campus_customs_new.db",
+        "sql": "SELECT landlord, monthly_rent, next_due FROM leases WHERE id=1",
+        "expected": {
+          "landlord": "Elm City Properties",
+          "monthly_rent": 2400.0,
+          "next_due": "2026-09-02"
+        },
+        "matches_db": true
+      }
+    },
+    {
+      "ticket": 103,
+      "prompt": "Ticket 103: the Yale AI Club wants a bulk discount on CC-HOOD-NAVY hoodies. Use the campus-customs MCP server to get the unit cost and list price.",
+      "tool_name": "get_sku_pricing",
+      "tool_args": {
+        "sku": "CC-HOOD-NAVY"
+      },
+      "tool_output": {
+        "found": true,
+        "sku": "CC-HOOD-NAVY",
+        "unit_cost": 22.0,
+        "list_price": 58.0,
+        "unit_margin": 36.0
+      },
+      "model_answer": "CC-HOOD-NAVY has a unit cost of $22.00 and a list price of $58.00.",
+      "db_check": {
+        "database": "data/campus_customs_new.db",
+        "sql": "SELECT unit_cost, list_price FROM pricing WHERE sku='CC-HOOD-NAVY'",
+        "expected": {
+          "unit_cost": 22.0,
+          "list_price": 58.0
+        },
+        "matches_db": true
+      }
+    }
+  ]
+}
