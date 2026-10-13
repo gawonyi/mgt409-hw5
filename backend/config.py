@@ -19,7 +19,7 @@ WORKING_DB = Path(os.getenv("CAMPUS_CUSTOMS_DB") or ROOT / "data" / "campus_cust
 MCP_CONFIG = ROOT / ".mcp.json"
 AUDIT_PATH = Path(os.getenv("CAMPUS_AUDIT_PATH") or ROOT / "output" / "audit_trail.json")
 
-load_dotenv(find_dotenv(usecwd=True))  # Documents/codex/.env, found from any subfolder
+load_dotenv(find_dotenv(usecwd=True))  # .env in the project folder or any parent folder
 
 # HW5 rule: every agent uses gpt-6-luna through Portkey. Deliberately not an env
 # override, so a stray PORTKEY_MODEL in .env cannot switch an agent's model.
@@ -46,7 +46,7 @@ TICKET_USAGE_LIMITS = UsageLimits(
 def portkey_key() -> str:
     key = os.getenv("PORTKEY_API_KEY")
     if not key:
-        raise RuntimeError("PORTKEY_API_KEY not found. Add it to Documents/codex/.env")
+        raise RuntimeError("PORTKEY_API_KEY not found. Copy .env.example to .env in the project folder and add your key.")
     return key
 
 

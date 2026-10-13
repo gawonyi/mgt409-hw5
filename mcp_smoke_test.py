@@ -41,7 +41,7 @@ DB_PATH = ROOT / "data" / "campus_customs_new.db"
 MCP_CONFIG = ROOT / ".mcp.json"
 OUT_PATH = ROOT / "output" / "mcp_smoke.json"
 
-load_dotenv(find_dotenv(usecwd=True))  # finds Documents/codex/.env from this folder
+load_dotenv(find_dotenv(usecwd=True))  # .env in the project folder or any parent folder
 # HW5 requires gpt-6-luna; HW5_MODEL / --model override it on purpose only.
 DEFAULT_MODEL = os.getenv("HW5_MODEL", "gpt-6-luna")
 BASE_URL = os.getenv("PORTKEY_BASE_URL", "https://api.portkey.ai/v1")
@@ -84,7 +84,7 @@ TESTS: list[dict[str, Any]] = [
 def portkey_key() -> str:
     key = os.getenv("PORTKEY_API_KEY")
     if not key:
-        sys.exit("PORTKEY_API_KEY not found. Add it to Documents/codex/.env")
+        sys.exit("PORTKEY_API_KEY not found. Copy .env.example to .env in the project folder and add your key.")
     return key
 
 
@@ -102,7 +102,7 @@ def mcp_toolset() -> MCPToolset:
     cfg = json.loads(MCP_CONFIG.read_text())["mcpServers"]["campus-customs"]
     command = cfg["command"]
     # Use this interpreter so the server sees the same installed packages (venv-safe).
-    if command in ("python", "python3"):
+    if Path(command).name.startswith("python"):
         command = sys.executable
     transport = StdioTransport(command=command, args=cfg["args"], env=cfg.get("env") or None, cwd=str(ROOT))
     return MCPToolset(Client(transport))
@@ -191,7 +191,14 @@ def main() -> None:
 
     report = asyncio.run(run_tests(get_model(args.model), args.model))
     OUT_PATH.parent.mkdir(exist_ok=True)
-    OUT_PATH.write_text(json.dumps(report, indent=2))
+    # Keep the vibe-coder evidence already in the file; this script only owns its own section.
+    existing = json.loads(OUT_PATH.read_text()) if OUT_PATH.exists() else {"test": report["test"]}
+    existing["supporting_portkey_test"] = {
+        "description": "Automated check: a gpt-6-luna agent on Portkey connects through .mcp.json, "
+                       "chooses and calls each tool itself, and every output is compared with the database.",
+        **{k: v for k, v in report.items() if k != "test"},
+    }
+    OUT_PATH.write_text(json.dumps(existing, indent=2))
     print(f"\nWrote {OUT_PATH.relative_to(ROOT)}  (all_match_db={report['all_match_db']})")
     if not report["all_match_db"]:
         print("Next step: read the CHECK/ERROR lines above; try --model gpt-5.6-luna if the model skipped tools.")

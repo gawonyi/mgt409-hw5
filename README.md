@@ -42,12 +42,16 @@ cp data/campus_customs.db data/campus_customs_new.db
 
 ## 3. MCP server
 
-`.mcp.json` registers the server as `campus-customs` (stdio). The backend starts it automatically from this file, so you normally don't run it by hand. To run it on its own, or to check it:
+`.mcp.json` registers the server as `campus-customs` (stdio, run with the project's `.venv/bin/python` from step 1, so a coding agent can start it without an activated venv). The backend starts it automatically from this file, so you normally don't run it by hand. To run it on its own, or to check it:
 
 ```bash
 python3 mcp_server/server.py      # stdio MCP server (waits for a client; Ctrl+C to stop)
 python3 mcp_smoke_test.py         # a Portkey model calls three tools; writes output/mcp_smoke.json
 ```
+
+In Claude Code (or Cursor), open this folder after step 1 and the `campus-customs` tools are available from `.mcp.json`; `output/mcp_smoke.json` records such a run.
+
+`mcp_smoke_test.py` opens the database itself only to double-check the tool outputs (read-only); the agents and the API never touch the database except through the MCP server.
 
 Tools and the tables they use: `mcp_server/README.md`. Claude Code and Cursor can load the same `.mcp.json`.
 
@@ -99,4 +103,5 @@ Expected end state: all three tickets resolved, checking $160.00 in `cash_accoun
 | `output/desk_tickets.html` | Expected vs. actual per ticket, Cash reconciliation, Reflection |
 | `output/resolved_tickets.json`, `resolved_board.html` | Results and board screenshots of the final run |
 | `output/audit_trail.json` | Every agent-loop step of every run (append-only) |
-| `output/mcp_smoke.json`, `design.md`, `github_url.txt` | MCP smoke test, dashboard design notes, repo URL |
+| `output/mcp_smoke.json`, `mcp_smoke_claude_code.png` | Problem 4: the three MCP tools called from Claude Code (plus an automated Portkey check) |
+| `output/design.md`, `github_url.txt` | Dashboard design notes, repo URL |

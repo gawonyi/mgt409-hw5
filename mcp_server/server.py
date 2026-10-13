@@ -100,6 +100,27 @@ def _days_between(later: str, earlier: str) -> int:
     return _query("SELECT CAST(julianday(?) - julianday(?) AS INTEGER) AS d", (later, earlier))[0]["d"]
 
 
+CUSTOMER_FACING = ("customer_order", "price_override")
+RENT_RESERVE_DAYS = 7  # rent due within this many days is held back before paying anything else
+
+
+def _rent_reserve() -> tuple[float, list[dict]]:
+    """Rent due within RENT_RESERVE_DAYS of the shop date that is not already waiting for approval."""
+    today = _shop_date()
+    if not today:
+        return 0.0, []
+    held = []
+    for l in _query("SELECT id, space_name, landlord, monthly_rent, next_due FROM leases"):
+        days = _days_between(l["next_due"], today)
+        pending = _query(
+            "SELECT 1 FROM payment_requests WHERE kind = 'rent' AND ref_id = ? AND status = 'pending'", (l["id"],)
+        )
+        if days <= RENT_RESERVE_DAYS and not pending:
+            held.append({"lease_id": l["id"], "landlord": l["landlord"], "monthly_rent": l["monthly_rent"],
+                         "next_due": l["next_due"], "days_until_due": days})
+    return round(sum(h["monthly_rent"] for h in held), 2), held
+
+
 # ---------------------------------------------------------------- read tools
 
 
@@ -196,6 +217,20 @@ def get_lease_rent_due(lease_id: int) -> dict:
         "days_until_due": _days_between(lease["next_due"], today) if today else None,
         "notes": lease["notes"],
     }
+
+
+@mcp.tool
+def list_leases() -> dict:
+    """List every lease with landlord, monthly rent, next due date, and days until due (from the shop date).
+
+    Accounting uses this before paying any other bill: rent due within 7 days is held back first.
+    """
+    today = _shop_date()
+    rows = _query("SELECT id, space_name, landlord, monthly_rent, next_due FROM leases ORDER BY next_due")
+    for r in rows:
+        r["days_until_due"] = _days_between(r["next_due"], today) if today else None
+    reserve, held = _rent_reserve()
+    return {"shop_date_today": today, "leases": rows, "rent_held_back_next_7_days": reserve, "held": held}
 
 
 @mcp.tool
@@ -354,6 +389,12 @@ def _create_request(ticket_id: int, kind: str, ref_id: int, payee: str, amount: 
         return {"created": False, "message": f"A pending {kind} request already exists (request {dup[0]['id']})."}
     balance = _checking_balance() or 0.0
     pending = _pending_total()
+    reserve, held = (0.0, []) if kind == "rent" else _rent_reserve()
+    # Rent first: an invoice or purchase must leave enough for rent due within 7 days.
+    if kind != "rent" and balance - pending - amount < reserve:
+        return {"created": False, "amount": round(amount, 2), "checking_balance": balance,
+                "pending_requests_total": pending, "rent_held_back": reserve, "rent_due": held,
+                "message": "Rent due within 7 days would not be covered after this payment; request rent first or wait."}
     with _db(write=True) as conn:
         cur = conn.execute(
             """INSERT INTO payment_requests
@@ -374,6 +415,10 @@ def _create_request(ticket_id: int, kind: str, ref_id: int, payee: str, amount: 
         "pending_before_this": pending,
         "covered_by_cash": balance - pending >= amount,
         "balance_after_all_pending": round(balance - pending - amount, 2),
+        "rent_held_back": reserve,
+        "rent_check": "rent request itself" if kind == "rent" else
+                      f"covers ${reserve:.2f} rent due within {RENT_RESERVE_DAYS} days" if reserve else
+                      f"no unrequested rent due within {RENT_RESERVE_DAYS} days",
         "note": "No money has moved. A human must approve this request.",
     }
 
@@ -432,11 +477,11 @@ def request_restock_purchase(ticket_id: int, vendor_id: int, sku: str, size: str
     amount = qty * p[0]["unit_cost"]
     # Spending order: rent and bills already waiting for approval come first, so
     # a new purchase must fit in what is left after them.
-    available = round((_checking_balance() or 0.0) - _pending_total(), 2)
+    available = round((_checking_balance() or 0.0) - _pending_total() - _rent_reserve()[0], 2)
     if amount > available:
         return {"created": False, "amount_needed": round(amount, 2), "available_after_pending": available,
                 "shortfall": round(amount - available, 2),
-                "message": "Not enough checking after pending rent/invoice requests; purchase not requested."}
+                "message": "Not enough checking after pending requests and rent due within 7 days; purchase not requested."}
     arrival = _query("SELECT date(?, ?) AS d", (_shop_date(), f"+{v[0]['lead_days']} days"))[0]["d"]
     out = _create_request(ticket_id, "purchase_order", vendor_id, v[0]["name"], amount,
                           f"PO {qty} x {sku} {size} @ ${p[0]['unit_cost']:.2f}, arrives ~{arrival}",
@@ -463,11 +508,19 @@ def update_ticket_status(ticket_id: int, status: str, resolution_note: str, agen
 
     'resolved' is refused while the ticket still has pending payment
     requests; use 'awaiting_approval' and the Approve step will resolve it.
+    For customer_order and price_override tickets, 'awaiting_approval' and
+    'resolved' are refused until a 'Customer reply:' note is saved.
     """
     if status not in ("open", "awaiting_approval", "resolved"):
         return {"updated": False, "message": "status must be open, awaiting_approval, or resolved."}
-    if not _query("SELECT id FROM tickets WHERE id = ?", (ticket_id,)):
+    t = _query("SELECT type, notes FROM tickets WHERE id = ?", (ticket_id,))
+    if not t:
         return {"updated": False, "message": f"No ticket {ticket_id}."}
+    # A customer-facing ticket is not done (or handed to a human) until the requester has a reply.
+    if (status in ("awaiting_approval", "resolved") and t[0]["type"] in CUSTOMER_FACING
+            and "Customer reply:" not in (t[0]["notes"] or "")):
+        return {"updated": False, "message": f"Ticket {ticket_id} is a {t[0]['type']}: customer_service must save a "
+                "'Customer reply:' note with add_ticket_note before it can be set to " + status + "."}
     pending = _query("SELECT id FROM payment_requests WHERE ticket_id = ? AND status = 'pending'", (ticket_id,))
     if status == "resolved" and pending:
         return {"updated": False, "message": f"Ticket {ticket_id} has pending payment requests "
@@ -526,7 +579,9 @@ def execute_approved_payment(request_id: int, approved_by: str) -> dict:
             (req["ticket_id"],),
         ).fetchone()["n"]
         ticket_resolved = False
-        if still == 0:
+        trow = conn.execute("SELECT type, notes FROM tickets WHERE id = ?", (req["ticket_id"],)).fetchone()
+        has_reply = trow is not None and (trow["type"] not in CUSTOMER_FACING or "Customer reply:" in (trow["notes"] or ""))
+        if still == 0 and has_reply:
             cur = conn.execute(
                 "UPDATE tickets SET status = 'resolved', notes = COALESCE(notes, '') || char(10) || ? "
                 "WHERE id = ? AND status = 'awaiting_approval'",

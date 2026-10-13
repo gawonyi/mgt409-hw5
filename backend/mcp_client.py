@@ -13,6 +13,8 @@ import os
 import sys
 from typing import Any
 
+from pathlib import Path
+
 from fastmcp import Client
 from fastmcp.client.transports import StdioTransport
 from pydantic_ai.mcp import MCPToolset
@@ -30,10 +32,10 @@ ROLE_TOOLS: dict[str, frozenset[str]] = {
     }),
     "accounting": frozenset(_COMMON | {
         "get_cash_balance", "get_invoice", "list_open_invoices", "list_payments", "list_payment_requests",
-        "get_sku_pricing", "quote_bulk_discount", "get_lease_rent_due", "list_vendors",
+        "get_sku_pricing", "quote_bulk_discount", "get_lease_rent_due", "list_leases", "list_vendors",
         "request_invoice_payment", "request_rent_payment", "request_restock_purchase", "add_ticket_note",
     }),
-    "facilities": frozenset(_COMMON | {"get_lease_rent_due", "list_payments", "list_payment_requests", "add_ticket_note"}),
+    "facilities": frozenset(_COMMON | {"get_lease_rent_due", "list_leases", "list_payments", "list_payment_requests", "add_ticket_note"}),
     "customer_service": frozenset(_COMMON | {
         "check_stock_by_sku_size", "get_sku_pricing", "quote_bulk_discount", "list_vendors", "add_ticket_note",
     }),
@@ -43,7 +45,10 @@ assert not any(HUMAN_ONLY_TOOLS & tools for tools in ROLE_TOOLS.values())
 
 def _transport() -> StdioTransport:
     cfg = json.loads(MCP_CONFIG.read_text())["mcpServers"]["campus-customs"]
-    command = sys.executable if cfg["command"] in ("python", "python3") else cfg["command"]
+    # .mcp.json points at the project venv (.venv/bin/python) so coding agents that launch it
+    # without an activated venv still find fastmcp. The backend itself always reuses the
+    # interpreter it is running in, so it works with any venv.
+    command = sys.executable if Path(cfg["command"]).name.startswith("python") else cfg["command"]
     env = dict(cfg.get("env") or {})
     if os.getenv("CAMPUS_CUSTOMS_DB"):  # test override only; never send API keys to the server
         env["CAMPUS_CUSTOMS_DB"] = os.environ["CAMPUS_CUSTOMS_DB"]

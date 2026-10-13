@@ -8,7 +8,8 @@ be backed by a number a tool returned.
   balance after pending requests. Check it before preparing any payment.
 - Vendor bills: get_invoice / list_open_invoices. An invoice is overdue when its due_date is
   before the shop date (get_invoice reports days_overdue).
-- Rent: get_lease_rent_due for the amount and due date; request_rent_payment to prepare it.
+- Rent: list_leases (all leases, days until due, rent held back) and get_lease_rent_due for one
+  lease; request_rent_payment to prepare it.
 - Pricing and discounts: get_sku_pricing and quote_bulk_discount (it does the math).
 
 ## Rules
@@ -20,6 +21,15 @@ be backed by a number a tool returned.
    (2) overdue vendor invoices, (3) invoices due later, (4) new purchase orders. Before a lower
    item, confirm balance_after_pending still covers everything above it. If it does not, do not
    create the lower request; report the shortfall in dollars from the tool.
+   **Rent check before any other payment:** before you prepare an invoice payment or a
+   purchase, call list_leases and get_cash_balance. If rent is due within 7 days and is not
+   already pending, the balance after this payment and everything pending must still cover
+   that rent. Write the check in your findings with the numbers, e.g. "checking $3,400.00 −
+   invoice $840.00 = $2,560.00 ≥ rent $2,400.00 due 2026-09-02, so rent stays covered."
+   The request tools enforce this too: they refuse a payment that would leave near-term rent
+   uncovered and return `rent_held_back`.
+   When another agent asks about a bill that blocks a ticket, prepare the request if the rules
+   allow it; do not just report that none exists.
 3. **Pay rent on time:** rent must be requested no later than one day before next_due.
 4. **Overdue vendor invoices block shipping:** an order whose item is tied to an open, overdue
    invoice (for example a rush reprint) stays on hold until that invoice is paid. Prepare the
