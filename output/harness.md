@@ -107,7 +107,7 @@ Server: `mcp_server/server.py`. The backend reaches the database **only** throug
 | `get_lease_rent_due` | leases, desk | read | Facilities, Accounting |
 | `list_leases` | leases, desk, payment_requests | read (rent due within 7 days and not yet requested) | Accounting, Facilities |
 | `get_sku_pricing` | pricing | read | Inventory, Accounting, Customer Service |
-| `quote_bulk_discount` | pricing | read (math in Python) | Accounting, Customer Service |
+| `quote_bulk_discount` | pricing | read (math in Python; enforces the discount policy: 10+ units, ≤10% self-serve, 10–20% manager, never >20% or below 1.5 × cost) | Accounting, Customer Service |
 | `list_vendors` | vendors | read | Inventory, Accounting, Customer Service |
 | `get_invoice` | invoices, vendors, desk | read | Accounting |
 | `list_open_invoices` | invoices, vendors | read | Inventory, Accounting |
@@ -141,7 +141,7 @@ Enforced in prompts:
 - Rent before everything else (also enforced in code, see above); overdue vendor invoices before new purchases; Accounting writes its rent check with numbers.
 - Orders tied to an unpaid vendor invoice are held until a human approves that payment.
 - Rent notices are paid only if the landlord, amount, and "due in N days" match the lease (fraud check).
-- Discounts: ≥10 units only; ≤10% Accounting may offer; 10–20% needs a manager's approval; never >20% or below 1.5 × unit cost.
+- Discounts: ≥10 units only; ≤10% Accounting may offer; 10–20% needs a manager's approval; never >20% or below 1.5 × unit cost (also enforced by `quote_bulk_discount`, which returns list price for fewer than 10 units). When only part of a bulk order is in stock, the bulk price belongs to the full order; units taken now on their own are quoted at list.
 - Customer orders and price overrides always end with a Customer Service reply (also enforced in code); replies use tool facts only, no internal cash figures, no invented dates.
 - Delegations ask for the action ("prepare the payment if the rules allow"), not just a status check.
 - "If a tool did not return it, say you do not know."
@@ -198,18 +198,19 @@ React + Vite + TypeScript board in `frontend/` (`npm install`, `npm run dev` →
 
 ## 10. Final run and lessons (Problem 9)
 
-Final clean run on 2026-10-13: database reset at 1:45 PM ET (checking $3,400.00), then tickets 103 → 102 → 101 from the board. Details: `output/desk_tickets.html` (Actual, Cash, Reflection tabs), `output/resolved_tickets.json`, `output/resolved_board.html`, `output/audit_trail.json`.
+Final clean run on 2026-10-13: database reset at 4:05 PM ET (checking $3,400.00), then tickets 101 → 102 → 103 from the board. Details: `output/desk_tickets.html` (Actual, Cash, Reflection tabs), `output/resolved_tickets.json`, `output/resolved_board.html`, `output/audit_trail.json`.
 
 | Ticket | Run id | First agent | Hand-offs | Payment (approved by Gawon Yi) | Checking after | Status |
 |---|---|---|---|---|---|---|
-| 103 | t103-04635cf5 | Accounting | boss→accounting, boss→inventory, boss→customer_service | None (10% quote, $1,044.00 for 20) | $3,400.00 | resolved |
-| 102 | t102-4ac81e5f | Facilities | boss→facilities, facilities→accounting | Request 1, rent lease 1, $2,400.00 to Elm City Properties | $1,000.00 | resolved |
-| 101 | t101-82446e08 | Inventory | boss→inventory, boss→accounting, boss→customer_service | Request 2, invoice 501, $840.00 to Bulldog Print Co (rent check: nothing due within 7 days) | $160.00 | resolved |
+| 101 | t101-bb383005 | Inventory | boss→inventory, inventory→accounting, boss→customer_service | Request 1, invoice 501, $840.00 to Bulldog Print Co (rent check: $2,560.00 left covers $2,400.00 rent due in 2 days) | $2,560.00 | resolved |
+| 102 | t102-bd2ef340 | Facilities | boss→facilities, facilities→accounting | Request 2, rent lease 1, $2,400.00 to Elm City Properties | $160.00 | resolved |
+| 103 | t103-0b08310b | Accounting | boss→accounting, accounting→inventory, boss→customer_service | None (20 at $52.20 = $1,044.00; 8 in stock alone at $58.00 = $464.00) | $160.00 | resolved |
 
-Ending checking $160.00 = `cash_accounts.checking` ($3,400.00 − $2,400.00 − $840.00). Facilities was skipped on 101 and 103, Inventory and Customer Service on 102. Usage: 41 model calls, 57 tool calls, 8 hand-offs, about 105,000 tokens, within the per-ticket limits in section 7.
+Ending checking $160.00 = `cash_accounts.checking` ($3,400.00 − $840.00 − $2,400.00). Every delegation matched the Problem 6 plan, including three specialist-to-specialist hand-offs; Facilities was skipped on 101 and 103, Inventory and Customer Service on 102. Usage: 44 model calls, 55 tool calls, 8 hand-offs, about 115,000 tokens, within the per-ticket limits in section 7.
 
 **How the system changed between runs** (every run is in the audit trail):
-- **Before any reset:** `t101-e7bcc25c` was the Problem 5 command-line test of ticket 101 (it left request 1 pending; the first reset cleared it).
-- **Run 1** (reset 11:21 AM ET; t101-379f4cf0, t102-802de7c2, t103-8cb082a8): 102 stayed open because the Facilities rule demanded that the email's amount match the lease, but the email has no amount; 103 stayed open because the Boss waited for the club's answer. Fixed in `facilities.md` (check an amount only if the notice states one) and `boss.md` (a price override is resolved once the in-policy quote is saved).
-- **Run 2** (reset 1:10 PM ET; t101-0c6826ff, t102-08fbf1ce, t103-3283da3e): all resolved, but 101 closed with no reply to the customer, Accounting needed two hand-offs because it was only asked to "confirm", and it paid the invoice before rent without checking the lease (rent fit, by luck). Fixed with code, not just prompts: `update_ticket_status` refuses `awaiting_approval`/`resolved` on customer orders and price overrides until a `Customer reply:` note exists, approval resolves such tickets only with that reply, and a new `list_leases` tool plus a server-side hold back rent due within 7 days before any invoice or purchase request is accepted. `boss.md` now asks delegates for the action, and `accounting.md` requires the rent check with numbers.
-- **Run 3** (reset 1:45 PM ET; table above) is the final run.
+- **Before any reset:** `t101-e7bcc25c` was the Problem 5 command-line test of ticket 101 (the first reset cleared its pending request).
+- **Run 1** (reset 11:21 AM ET; t101-379f4cf0, t102-802de7c2, t103-8cb082a8): 102 stayed open because the Facilities rule demanded that the email's amount match the lease, but the email has no amount; 103 stayed open because the Boss waited for the club. Fixed in `facilities.md` and `boss.md`.
+- **Run 2** (reset 1:10 PM ET; t101-0c6826ff, t102-08fbf1ce, t103-3283da3e): 101 closed with no reply to the customer, Accounting needed two hand-offs because it was asked to "confirm", and it paid the invoice before rent without checking the lease. Fixed in code: `update_ticket_status` refuses `awaiting_approval`/`resolved` on customer orders and price overrides until a `Customer reply:` note exists; `list_leases` plus a server-side hold of rent due within 7 days; `boss.md` asks for actions; `accounting.md` requires the rent check.
+- **Run 3** (reset 1:45 PM ET; t103-04635cf5, t102-4ac81e5f, t101-82446e08): 101 and rent-first worked, but the 103 reply offered the 8 in-stock hoodies at the $52.20 bulk price, breaking the 10-unit rule. Fixed in code: `quote_bulk_discount` enforces the discount policy (list price under 10 units, manager needed for 10–20%, never above 20% or below 1.5 × cost); Accounting quotes partial quantities separately; Customer Service and the Boss check reply prices against the quotes.
+- **Run 4** (reset 4:05 PM ET; table above) is the final run.

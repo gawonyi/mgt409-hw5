@@ -254,14 +254,24 @@ def get_sku_pricing(sku: str) -> dict:
     }
 
 
+# Discount policy, enforced here so no agent can quote outside it.
+BULK_MIN_QTY = 10          # bulk pricing only for 10+ units of one SKU in one order
+SELF_SERVE_MAX_PCT = 10    # Accounting may offer up to this without a manager
+MANAGER_MAX_PCT = 20       # 10-20% needs a manager; above this is never allowed
+PRICE_FLOOR_X_COST = 1.5   # never sell below 1.5 x unit cost
+
+
 @mcp.tool
 def quote_bulk_discount(sku: str, qty: int, discount_pct: float) -> dict:
-    """Price a bulk order of `qty` units of `sku` at `discount_pct` percent off list (e.g. 10 = 10%).
+    """Price `qty` units of `sku` at `discount_pct` percent off list (e.g. 10 = 10%), applying the shop's discount policy.
 
-    Reads the pricing table and does the arithmetic in Python so no agent
-    has to. Returns dollars: list total, discounted unit price, discounted
-    total, customer savings, unit cost, margin per unit after discount, and
-    margin percent of the discounted price.
+    Reads the pricing table and does the arithmetic in Python. Policy: bulk
+    pricing needs 10+ units in one order (fewer units are quoted at list
+    price); up to 10% Accounting may offer; 10-20% needs a manager; never
+    more than 20% or below 1.5 x unit cost. Returns dollars: list total,
+    unit price and total actually quoted, savings, margin, and
+    `policy` = ok | needs_manager_approval | list_price_only | not_allowed.
+    Use it separately for any partial quantity (e.g. units available now).
     """
     rows = _query("SELECT unit_cost, list_price FROM pricing WHERE sku = ?", (sku,))
     if not rows:
@@ -269,18 +279,37 @@ def quote_bulk_discount(sku: str, qty: int, discount_pct: float) -> dict:
     if qty <= 0 or not (0 <= discount_pct < 100):
         return {"found": False, "message": "qty must be > 0 and discount_pct between 0 and 100."}
     cost, price = rows[0]["unit_cost"], rows[0]["list_price"]
-    unit_price = round(price * (1 - discount_pct / 100), 2)
+    floor = round(cost * PRICE_FLOOR_X_COST, 2)
+    asked_price = round(price * (1 - discount_pct / 100), 2)
+    if discount_pct > 0 and qty < BULK_MIN_QTY:
+        policy, pct, note = "list_price_only", 0.0, (
+            f"Bulk pricing needs {BULK_MIN_QTY}+ units; {qty} units are quoted at list price ${price:.2f}.")
+    elif discount_pct > MANAGER_MAX_PCT or asked_price < floor:
+        policy, pct, note = "not_allowed", 0.0, (
+            f"Discounts above {MANAGER_MAX_PCT}% or below the ${floor:.2f} floor are not allowed; quoted at list.")
+    elif discount_pct > SELF_SERVE_MAX_PCT:
+        policy, pct, note = "needs_manager_approval", discount_pct, (
+            f"{discount_pct}% is above the {SELF_SERVE_MAX_PCT}% Accounting limit; a manager must approve it.")
+    else:
+        policy, pct, note = "ok", discount_pct, "Within Accounting's authority."
+    unit_price = round(price * (1 - pct / 100), 2)
     return {
         "found": True,
         "sku": sku,
         "qty": qty,
-        "discount_pct": discount_pct,
+        "discount_pct_requested": discount_pct,
+        "discount_pct_quoted": pct,
+        "policy": policy,
+        "policy_note": note,
         "list_price": price,
         "list_total": round(price * qty, 2),
+        "quoted_unit_price": unit_price,
+        "quoted_total": round(unit_price * qty, 2),
         "discounted_unit_price": unit_price,
         "discounted_total": round(unit_price * qty, 2),
         "customer_savings": round((price - unit_price) * qty, 2),
         "unit_cost": cost,
+        "price_floor": floor,
         "unit_margin_after_discount": round(unit_price - cost, 2),
         "margin_pct_of_price": round((unit_price - cost) / unit_price * 100, 1) if unit_price else None,
     }

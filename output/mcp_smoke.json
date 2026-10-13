@@ -3,7 +3,7 @@
   "vibe_coder_test": {
     "vibe_coder": "Claude Code (Claude desktop app), project folder HW 5",
     "connection": ".mcp.json at the project root (server campus-customs, stdio, .venv/bin/python mcp_server/server.py), loaded when the session opened; the three tools appear in the session as campus-customs MCP tools",
-    "run_at": "2026-10-13T14:05:00-04:00",
+    "run_at": "2026-10-13, about 2:05 PM ET (time of the Claude Code session; the app shows no exact timestamp)",
     "database": "data/campus_customs_new.db (the submitted state after Problem 9)",
     "evidence_screenshot": "output/mcp_smoke_claude_code.png",
     "all_match_db": true,
@@ -41,7 +41,7 @@
           ]
         },
         "db_check": {
-          "sql": "SELECT qty, location FROM inventory WHERE sku='CC-TEE-WHITE' AND size='S'",
+          "sql": "SELECT qty AS qty_on_hand, location FROM inventory WHERE sku='CC-TEE-WHITE' AND size='S'",
           "expected": {
             "qty_on_hand": 0,
             "location": "Aisle B"
@@ -103,7 +103,8 @@
         }
       }
     ],
-    "note": "The first attempt in this app failed to connect because .mcp.json launched the server with the system python3, which has no fastmcp; the vibe coder then started the server itself, which I did not count as evidence. After .mcp.json was changed to .venv/bin/python, a new session connected and called the tools directly (above). The three tools take no ticket id; 101/102/103 only label which ticket each check is for."
+    "note": "The first attempt in this app failed to connect because .mcp.json launched the server with the system python3, which has no fastmcp; the vibe coder then started the server itself, which I did not count as evidence. After .mcp.json was changed to .venv/bin/python, a new session connected and called the tools directly (above). The three tools take no ticket id; 101/102/103 only label which ticket each check is for.",
+    "db_check_method": "Outputs copied from the Claude Code session (see screenshot) and compared by me with the submitted database using the SQL in each db_check."
   },
   "supporting_portkey_test": {
     "description": "Earlier automated check (python3 mcp_smoke_test.py): a gpt-6-luna agent on Portkey connected through the same .mcp.json and chose and called each tool itself; every output was compared with the database.",

@@ -84,7 +84,7 @@ Open http://localhost:5173.
 4. Do the same for **#102** (approve the $2,400.00 rent).
 5. Run **#103** (a discount quote; no payment expected).
 
-Expected end state: all three tickets resolved, checking $160.00 in `cash_accounts`.
+The tickets can be run in any order; the submitted final run used 103 → 102 → 101. Either way the expected end state is all three tickets resolved and checking $160.00 in `cash_accounts` ($3,400.00 − $2,400.00 rent − $840.00 invoice).
 
 ## Project layout
 

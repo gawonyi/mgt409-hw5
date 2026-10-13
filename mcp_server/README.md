@@ -18,7 +18,7 @@
 | `get_lease_rent_due(lease_id)` | leases, desk | Landlord, rent, next due, days until due |
 | `list_leases()` | leases, desk, payment_requests | All leases with days until due, and rent due within 7 days that is not yet requested |
 | `get_sku_pricing(sku)` | pricing | Unit cost, list price, unit margin |
-| `quote_bulk_discount(sku, qty, discount_pct)` | pricing | Discounted unit price and total, savings, margin |
+| `quote_bulk_discount(sku, qty, discount_pct)` | pricing | Quoted unit price and total, savings, margin, and `policy` (ok / needs_manager_approval / list_price_only under 10 units / not_allowed) |
 | `list_vendors()` | vendors | Vendors with specialty and lead days |
 | `get_invoice(invoice_id)` | invoices, vendors, desk | Invoice, vendor, days overdue |
 | `list_open_invoices(sku=None)` | invoices, vendors | Open invoices, optionally for one SKU |

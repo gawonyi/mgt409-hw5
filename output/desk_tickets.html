@@ -87,7 +87,7 @@
 <div class="wrap">
   <header>
     <h1>Campus Customs Desk</h1>
-    <p>Expected plans (Problem 6) and actual runs (Problem 9) for the five-agent team. Final clean run after reset on Oct 13, 2026, 1:45 PM ET (shop date 2026-08-31): checking $3,400.00 &rarr; $160.00.</p>
+    <p>Expected plans (Problem 6) and actual runs (Problem 9) for the five-agent team. Final clean run after reset on Oct 13, 2026, 4:05 PM ET (shop date 2026-08-31): checking $3,400.00 &rarr; $160.00.</p>
   </header>
 
   <nav class="tabs" role="tablist">
@@ -143,28 +143,28 @@
 
     <div class="card">
       <span class="label act">Actual</span>
-      <p class="legend">Final run <code>t101-82446e08</code> (third ticket of the final clean run, after rent was paid) &middot; 15 model calls &middot; 22 tool calls &middot; 3 hand-offs &middot; 38,857 tokens</p>
+      <p class="legend">Final run <code>t101-bb383005</code> (first ticket of the final clean run) &middot; 17 model calls &middot; 23 tool calls &middot; 3 hand-offs &middot; 45,393 tokens</p>
       <h3>Boss called first</h3>
       <div class="first"><b>Inventory</b>, as planned: can a size S tee be handed over, and is it tied to an unpaid vendor invoice?</div>
       <h3>Delegations</h3>
       <ol class="flow">
         <li><span class="hop"><span class="agent">boss</span> <span class="arrow">&rarr;</span> <span class="agent">inventory</span></span>
           <p>S = 0 on hand (M 5, L 3, XL 2). <code>list_open_invoices</code> showed invoice 501 ($840.00, Bulldog Print Co) is already the rush reprint of this exact tee, so no new order; <code>list_vendors</code>: 5 lead days.</p></li>
-        <li><span class="hop"><span class="agent">boss</span> <span class="arrow">&rarr;</span> <span class="agent">accounting</span></span>
-          <p>Asked to <i>prepare</i> the invoice payment if the rules allow. Accounting confirmed invoice 501 is 3 days overdue, ran the rent check (<code>list_leases</code>: rent already paid, next due 2026-10-02, $0 held back) and cash ($1,000.00), and created <b>request 2: $840.00</b>. The tool recorded "no unrequested rent due within 7 days".</p></li>
+        <li><span class="hop"><span class="agent">inventory</span> <span class="arrow">&rarr;</span> <span class="agent">accounting</span></span>
+          <p>Specialist-to-specialist hand-off, asking Accounting to <i>prepare</i> the payment if allowed. Accounting confirmed the invoice is 3 days overdue, ran the rent check (<code>list_leases</code>: $2,400.00 rent due 2026-09-02, in 2 days) and cash ($3,400.00): $3,400.00 &minus; $840.00 = $2,560.00 still covers the rent, so it created <b>request 1: $840.00</b>.</p></li>
         <li><span class="hop"><span class="agent">boss</span> <span class="arrow">&rarr;</span> <span class="agent">customer_service</span></span>
-          <p>Saved Tauhid's reply: S is out, M/L/XL are in stock, would he like one of those or wait for S; no unconfirmed date, no mention of the vendor bill. Only then did the Boss set awaiting_approval.</p></li>
+          <p>Saved Tauhid's reply: S is out, the reprint is being arranged, L/M/XL are on hand; no unconfirmed date, no mention of the vendor bill. Only then did the Boss set awaiting_approval.</p></li>
       </ol>
       <h3>Agents and MCP tools actually used</h3>
-      <ul class="agents"><li><b>Boss</b> <div class="tools"><span class="chip">get_ticket</span><span class="chip">get_shop_date</span><span class="chip">list_payment_requests</span><span class="chip write">update_ticket_status</span></div></li><li><b>Inventory</b> <div class="tools"><span class="chip">get_ticket</span><span class="chip">check_stock_by_sku_size</span><span class="chip">list_open_invoices</span><span class="chip">list_vendors</span></div></li><li><b>Accounting</b> <div class="tools"><span class="chip">get_ticket</span><span class="chip">get_invoice</span><span class="chip">list_open_invoices</span><span class="chip">list_payment_requests</span><span class="chip">get_cash_balance</span><span class="chip">list_leases</span><span class="chip">get_shop_date</span><span class="chip write">request_invoice_payment</span></div></li><li><b>Customer Service</b> <div class="tools"><span class="chip">get_ticket</span><span class="chip">check_stock_by_sku_size</span><span class="chip write">add_ticket_note</span></div></li><li><b>Not called:</b> Facilities</li></ul>
+      <ul class="agents"><li><b>Boss</b> <div class="tools"><span class="chip">get_ticket</span><span class="chip">get_shop_date</span><span class="chip">list_payment_requests</span><span class="chip write">update_ticket_status</span></div></li><li><b>Inventory</b> <div class="tools"><span class="chip">get_ticket</span><span class="chip">check_stock_by_sku_size</span><span class="chip">list_open_invoices</span><span class="chip">get_shop_date</span><span class="chip">list_vendors</span></div></li><li><b>Accounting</b> <div class="tools"><span class="chip">get_invoice</span><span class="chip">get_shop_date</span><span class="chip">get_cash_balance</span><span class="chip">list_leases</span><span class="chip">list_payment_requests</span><span class="chip">list_open_invoices</span><span class="chip write">request_invoice_payment</span></div></li><li><b>Customer Service</b> <div class="tools"><span class="chip">get_ticket</span><span class="chip">check_stock_by_sku_size</span><span class="chip">list_vendors</span><span class="chip write">add_ticket_note</span></div></li><li><b>Not called:</b> Facilities</li></ul>
       <h3>Human step and result</h3>
-      <p>Gawon Yi approved request 2 (1:50 PM ET). Invoice 501 &rarr; paid, checking $1,000.00 &rarr; $160.00, ticket &rarr; <span class="ok">resolved</span> (allowed because the customer reply was on file).</p>
+      <p>Gawon Yi approved request 1 (4:07 PM ET). Invoice 501 &rarr; paid, checking $3,400.00 &rarr; $2,560.00, ticket &rarr; <span class="ok">resolved</span> (allowed because the customer reply was on file).</p>
       <h3>Expected vs. actual</h3>
       <div class="cmp">
-        <div class="same"><b>Matched the plan</b><ul><li>Inventory first; Facilities skipped</li><li>No duplicate reprint order; one $840.00 request paid only after human approval</li><li>Customer Service wrote the reply (S out, M/L/XL offered)</li><li>Every tool in the plan was used, plus the new rent check</li></ul></div>
-        <div class="diff"><b>Differed</b><ul><li>The plan had Inventory hand the bill to Accounting; in the final run the Boss sent it to Accounting itself, so all three hand-offs started at the Boss</li><li>The reply still gives no restock date even though Inventory found the 5-day lead time, because no reprint start date exists in the data</li></ul></div>
+        <div class="same"><b>Matched the plan</b><ul><li>Exactly the planned delegations: boss &rarr; inventory &rarr; accounting, then boss &rarr; customer_service; Facilities skipped</li><li>No duplicate reprint order; one $840.00 request, paid only after human approval</li><li>Every planned tool was used</li></ul></div>
+        <div class="diff"><b>Differed</b><ul><li>Accounting added the rent check (<code>list_leases</code>), which the plan did not have</li><li>The reply gives no restock date although Inventory and Customer Service both saw the 5-day lead time, because the reprint has no start date in the data</li></ul></div>
       </div>
-      <p class="note"><b>Run history for this ticket</b> (all in <code>output/audit_trail.json</code>): run 1 <code>t101-379f4cf0</code> (boss&rarr;inventory&rarr;accounting, boss&rarr;customer_service); run 2 <code>t101-0c6826ff</code> resolved with <b>no customer reply</b> and Accounting needed two hand-offs; that gap led to the server rule that a customer order cannot wait for approval or resolve without a saved reply. Run 3 above is the final run.</p>
+      <p class="note"><b>Run history for this ticket</b> (all in <code>output/audit_trail.json</code>): run 1 <code>t101-379f4cf0</code> matched the plan; run 2 <code>t101-0c6826ff</code> resolved with <b>no customer reply</b> and needed an extra hand-off (fixed: the server now requires a saved reply, and delegations ask for the action); run 3 <code>t101-82446e08</code> had the reply but all hand-offs came from the Boss; run 4 above is the final run.</p>
     </div>
   </section>
 
@@ -210,26 +210,26 @@
 
     <div class="card">
       <span class="label act">Actual</span>
-      <p class="legend">Final run <code>t102-4ac81e5f</code> (second ticket of the final clean run) &middot; 10 model calls &middot; 17 tool calls &middot; 2 hand-offs &middot; 25,620 tokens</p>
+      <p class="legend">Final run <code>t102-bd2ef340</code> (second ticket of the final clean run) &middot; 12 model calls &middot; 16 tool calls &middot; 2 hand-offs &middot; 30,444 tokens</p>
       <h3>Boss called first</h3>
       <div class="first"><b>Facilities</b>, as planned: verify the notice against lease 1 before anything is paid.</div>
       <h3>Delegations</h3>
       <ol class="flow">
         <li><span class="hop"><span class="agent">boss</span> <span class="arrow">&rarr;</span> <span class="agent">facilities</span></span>
-          <p>Requester matches landlord Elm City Properties; rent $2,400.00; next_due 2026-09-02, 2 days after the shop date, matching "due in 2 days". The notice states no amount, so there was nothing to mismatch; no earlier rent payment or request.</p></li>
+          <p>Requester matches landlord Elm City Properties; rent $2,400.00; next_due 2026-09-02, 2 days after the shop date, matching "due in 2 days". The email states no amount, so nothing to mismatch; no earlier rent payment or request.</p></li>
         <li><span class="hop"><span class="agent">facilities</span> <span class="arrow">&rarr;</span> <span class="agent">accounting</span></span>
-          <p>Specialist-to-specialist hand-off. Accounting checked cash ($3,400.00), <code>list_leases</code> (rent due in 2 days, first in the spending order), duplicates, and created <b>request 1: $2,400.00 rent</b>. Boss set awaiting_approval.</p></li>
+          <p>Specialist-to-specialist hand-off. Accounting checked cash ($2,560.00 after ticket 101), the lease, and duplicates, and created <b>request 2: $2,400.00 rent</b>. Boss set awaiting_approval.</p></li>
       </ol>
       <h3>Agents and MCP tools actually used</h3>
-      <ul class="agents"><li><b>Boss</b> <div class="tools"><span class="chip">get_ticket</span><span class="chip">get_shop_date</span><span class="chip write">update_ticket_status</span></div></li><li><b>Facilities</b> <div class="tools"><span class="chip">get_ticket</span><span class="chip">get_lease_rent_due</span><span class="chip">get_shop_date</span><span class="chip">list_payments</span><span class="chip">list_payment_requests</span></div></li><li><b>Accounting</b> <div class="tools"><span class="chip">get_cash_balance</span><span class="chip">list_leases</span><span class="chip">list_payments</span><span class="chip">list_payment_requests</span><span class="chip">get_ticket</span><span class="chip">get_lease_rent_due</span><span class="chip write">request_rent_payment</span></div></li><li><b>Not called:</b> Inventory, Customer Service</li></ul>
+      <ul class="agents"><li><b>Boss</b> <div class="tools"><span class="chip">get_ticket</span><span class="chip">get_shop_date</span><span class="chip">list_payment_requests</span><span class="chip">get_cash_balance</span><span class="chip write">update_ticket_status</span></div></li><li><b>Facilities</b> <div class="tools"><span class="chip">get_lease_rent_due</span><span class="chip">list_payments</span><span class="chip">list_payment_requests</span></div></li><li><b>Accounting</b> <div class="tools"><span class="chip">get_cash_balance</span><span class="chip">list_leases</span><span class="chip">get_lease_rent_due</span><span class="chip">get_shop_date</span><span class="chip">list_payment_requests</span><span class="chip write">request_rent_payment</span></div></li><li><b>Not called:</b> Inventory, Customer Service</li></ul>
       <h3>Human step and result</h3>
-      <p>Gawon Yi approved request 1 (1:49 PM ET). Checking $3,400.00 &rarr; $1,000.00, lease 1 next_due &rarr; 2026-10-02, ticket &rarr; <span class="ok">resolved</span>.</p>
+      <p>Gawon Yi approved request 2 (4:08 PM ET). Checking $2,560.00 &rarr; $160.00, lease 1 next_due &rarr; 2026-10-02, ticket &rarr; <span class="ok">resolved</span>.</p>
       <h3>Expected vs. actual</h3>
       <div class="cmp">
         <div class="same"><b>Matched the plan</b><ul><li>Same agents and order: boss &rarr; facilities &rarr; accounting</li><li>One $2,400.00 rent request, paid only after human approval</li></ul></div>
-        <div class="diff"><b>Differed</b><ul><li>Accounting also ran <code>list_leases</code> and <code>list_payments</code> (rent check and duplicate check), which were not in the plan</li><li>The Boss skipped its own <code>list_payment_requests</code> check before closing</li></ul></div>
+        <div class="diff"><b>Differed</b><ul><li>Facilities used the ticket facts the Boss passed instead of calling <code>get_ticket</code> itself</li><li>Accounting added <code>list_leases</code> and the Boss checked <code>get_cash_balance</code>; neither was in the plan</li></ul></div>
       </div>
-      <p class="note"><b>Run history for this ticket</b> (all in <code>output/audit_trail.json</code>): run 1 <code>t102-802de7c2</code> stopped at Facilities because the email gives no amount and the prompt demanded one (rule fixed: check the amount only if the notice states one); run 2 <code>t102-08fbf1ce</code> matched the plan; run 3 above is the final run.</p>
+      <p class="note"><b>Run history for this ticket</b> (all in <code>output/audit_trail.json</code>): run 1 <code>t102-802de7c2</code> stopped at Facilities because the email gives no amount and the prompt demanded one (fixed: check an amount only if the notice states one); runs 2 and 3 matched the plan; run 4 above is the final run.</p>
     </div>
   </section>
 
@@ -278,28 +278,28 @@
 
     <div class="card">
       <span class="label act">Actual</span>
-      <p class="legend">Final run <code>t103-04635cf5</code> (first ticket of the final clean run) &middot; 16 model calls &middot; 18 tool calls &middot; 3 hand-offs &middot; 40,589 tokens</p>
+      <p class="legend">Final run <code>t103-0b08310b</code> (third ticket of the final clean run) &middot; 15 model calls &middot; 16 tool calls &middot; 3 hand-offs &middot; 38,895 tokens</p>
       <h3>Boss called first</h3>
       <div class="first"><b>Accounting</b>, as planned: is a bulk discount allowed, and what does it cost the shop?</div>
       <h3>Delegations</h3>
       <ol class="flow">
         <li><span class="hop"><span class="agent">boss</span> <span class="arrow">&rarr;</span> <span class="agent">accounting</span></span>
-          <p><code>get_sku_pricing</code> ($22.00 cost, $58.00 list) and <code>quote_bulk_discount</code> at 10%: $52.20 each, $1,044.00 for 20, $30.20 margin per unit, above the 1.5 &times; cost floor ($33.00). Within Accounting's own authority; no payment, so no rent check needed.</p></li>
-        <li><span class="hop"><span class="agent">boss</span> <span class="arrow">&rarr;</span> <span class="agent">inventory</span></span>
-          <p>M: 8 on hand, 12 short; no open invoice for the hoodie; apparel vendor Bulldog Print Co, 5 lead days. No restock order was created.</p></li>
+          <p><code>get_sku_pricing</code> ($22.00 cost, $58.00 list), then <code>quote_bulk_discount</code> twice: the full order of 20 at 10% (policy <i>ok</i>: $52.20 each, $1,044.00, above the 1.5 &times; cost floor of $33.00), and the 8 units in stock on their own (policy <i>list_price_only</i>: $58.00 each, $464.00).</p></li>
+        <li><span class="hop"><span class="agent">accounting</span> <span class="arrow">&rarr;</span> <span class="agent">inventory</span></span>
+          <p>Specialist-to-specialist hand-off: M has 8 on hand, 12 short. Accounting told Inventory not to prepare purchases; with checking at $160.00 after rent, a $264.00 restock would not have fit anyway.</p></li>
         <li><span class="hop"><span class="agent">boss</span> <span class="arrow">&rarr;</span> <span class="agent">customer_service</span></span>
-          <p>Saved the club's reply: 8 available now at $52.20, the full quote is $1,044.00 for 20, 12 short, how would they like to proceed. Boss set the ticket to <span class="ok">resolved</span> (no payment, reply on file).</p></li>
+          <p>Customer Service re-checked both quotes with the tool and saved the reply: $52.20 each ($1,044.00) for the full 20, or the 8 in stock now at list ($58.00 each, $464.00), "the bulk discount applies to orders of 10 or more". The Boss checked the reply against the quotes and resolved the ticket.</p></li>
       </ol>
       <h3>Agents and MCP tools actually used</h3>
-      <ul class="agents"><li><b>Boss</b> <div class="tools"><span class="chip">get_ticket</span><span class="chip">get_shop_date</span><span class="chip">list_payment_requests</span><span class="chip write">update_ticket_status</span></div></li><li><b>Accounting</b> <div class="tools"><span class="chip">get_sku_pricing</span><span class="chip">get_shop_date</span><span class="chip">get_ticket</span><span class="chip">quote_bulk_discount</span></div></li><li><b>Inventory</b> <div class="tools"><span class="chip">get_ticket</span><span class="chip">check_stock_by_sku_size</span><span class="chip">list_open_invoices</span><span class="chip">list_vendors</span><span class="chip">get_shop_date</span></div></li><li><b>Customer Service</b> <div class="tools"><span class="chip">get_ticket</span><span class="chip write">add_ticket_note</span></div></li><li><b>Not called:</b> Facilities</li></ul>
+      <ul class="agents"><li><b>Boss</b> <div class="tools"><span class="chip">get_ticket</span><span class="chip">get_shop_date</span><span class="chip write">update_ticket_status</span></div></li><li><b>Accounting</b> <div class="tools"><span class="chip">get_sku_pricing</span><span class="chip">quote_bulk_discount &times;2</span></div></li><li><b>Inventory</b> <div class="tools"><span class="chip">check_stock_by_sku_size</span></div></li><li><b>Customer Service</b> <div class="tools"><span class="chip">get_ticket</span><span class="chip">check_stock_by_sku_size</span><span class="chip">get_sku_pricing</span><span class="chip">quote_bulk_discount &times;2</span><span class="chip write">add_ticket_note</span></div></li><li><b>Not called:</b> Facilities</li></ul>
       <h3>Result</h3>
-      <p>Quote saved on the ticket; no human approval needed; cash unchanged at $3,400.00 (this ticket ran first).</p>
+      <p>Quote saved on the ticket; no human approval needed; cash unchanged at $160.00.</p>
       <h3>Expected vs. actual</h3>
       <div class="cmp">
-        <div class="same"><b>Matched the plan</b><ul><li>Accounting first; Customer Service last; Facilities skipped</li><li>The planned 10% quote: $52.20 each, $1,044.00 total</li><li>Resolved with no payment, cash unchanged</li></ul></div>
-        <div class="diff"><b>Differed</b><ul><li>The Boss called Inventory itself instead of Accounting handing off to Inventory</li><li>No restock was attempted, so the cash refusal I planned to show did not happen. Because this ticket ran first, a 12-unit order ($264.00) would actually have fit at that moment ($3,400.00 minus the $2,400.00 held back for rent leaves $1,000.00), but it would then have left only $736.00, too little for overdue invoice 501 ($840.00) on ticket 101. Not ordering on a quote the club had not accepted kept that cash free</li><li>The reply gives no restock date although Inventory found the 5-day lead time</li></ul></div>
+        <div class="same"><b>Matched the plan</b><ul><li>Exactly the planned delegations: boss &rarr; accounting &rarr; inventory, then boss &rarr; customer_service; Facilities skipped</li><li>The planned 10% quote for 20: $52.20 each, $1,044.00</li><li>No purchase: the 12-unit restock ($264.00) does not fit in $160.00; resolved with cash unchanged</li></ul></div>
+        <div class="diff"><b>Differed</b><ul><li>The restock was never attempted, so the server's cash refusal I planned to show did not appear; Accounting stopped it first</li><li>Not in the plan: a second quote for the 8 in-stock units at list price, which the final reply offers</li><li>Customer Service repeated both quotes itself (4 quote calls in the ticket where 2 would do)</li></ul></div>
       </div>
-      <p class="note"><b>Run history for this ticket</b> (all in <code>output/audit_trail.json</code>): run 1 <code>t103-8cb082a8</code> made the same quote but left the ticket open waiting for the club's answer (Boss rule fixed); run 2 <code>t103-3283da3e</code> resolved with boss&rarr;accounting&rarr;inventory, boss&rarr;customer_service; run 3 above is the final run.</p>
+      <p class="note"><b>Run history for this ticket</b> (all in <code>output/audit_trail.json</code>): run 1 <code>t103-8cb082a8</code> left the ticket open waiting for the club (fixed in boss.md); run 2 <code>t103-3283da3e</code> resolved correctly; run 3 <code>t103-04635cf5</code> offered the 8 in-stock hoodies at the $52.20 bulk price, <b>breaking the 10-unit bulk rule</b>. Fix: <code>quote_bulk_discount</code> now enforces the policy (under 10 units it returns list price), Accounting quotes partial quantities separately, Customer Service checks every price against a tool result, and the Boss checks the reply before resolving. Run 4 above is the final run and follows the rule.</p>
     </div>
   </section>
 
@@ -307,19 +307,19 @@
   <section class="panel" id="cash" role="tabpanel">
     <div class="card">
       <h2>Cash</h2>
-      <p class="legend">Final clean run: database reset on Oct 13, 2026 at 1:45 PM ET, then tickets 103, 102, 101 in that order. Every money row below is a row in the <code>payments</code> table; the ending balance is read from <code>cash_accounts</code>.</p>
+      <p class="legend">Final clean run: database reset on Oct 13, 2026 at 4:05 PM ET, then tickets 101, 102, 103 in that order. Every money row below is a row in the <code>payments</code> table; the ending balance is read from <code>cash_accounts</code>.</p>
       <table>
         <thead><tr><th>Step</th><th>What happened</th><th style="text-align:right">Change</th><th style="text-align:right">Checking after</th></tr></thead>
         <tbody>
           <tr><td>Starting balance</td><td>Right after reset (<code>cash_accounts.checking</code>, logged by the reset as $3,400.00)</td><td class="num"></td><td class="num">$3,400.00</td></tr>
-          <tr><td>Ticket 103 (run 1st)</td><td>No money moved. Price quote only (10% off, $1,044.00 for 20 hoodies); no purchase order.</td><td class="num zero">$0.00</td><td class="num">$3,400.00</td></tr>
-          <tr><td>Ticket 102 (run 2nd)</td><td>Paid September rent for lease 1 (Chapel Street shop) to Elm City Properties, due 2026-09-02. Request 1, prepared by Accounting after Facilities verified the notice; approved by Gawon Yi at 1:49 PM ET. Payments row 1, kind <code>rent</code>.</td><td class="num neg">&minus;$2,400.00</td><td class="num">$1,000.00</td></tr>
-          <tr><td>Ticket 101 (run 3rd)</td><td>Paid vendor invoice 501 to Bulldog Print Co (rush reprint of CC-TEE-WHITE S, 3 days overdue). Request 2, prepared by Accounting after its rent check (next rent 2026-10-02, $0 held back); approved by Gawon Yi at 1:50 PM ET. Payments row 2, kind <code>invoice</code>.</td><td class="num neg">&minus;$840.00</td><td class="num">$160.00</td></tr>
-          <tr class="total"><td>Ending balance</td><td>$3,400.00 &minus; $0.00 &minus; $2,400.00 &minus; $840.00</td><td class="num neg">&minus;$3,240.00</td><td class="num">$160.00</td></tr>
+          <tr><td>Ticket 101</td><td>Paid vendor invoice 501 to Bulldog Print Co (rush reprint of CC-TEE-WHITE S, 3 days overdue). Request 1, prepared by Accounting after its rent check ($3,400.00 &minus; $840.00 = $2,560.00 still covers the $2,400.00 rent due in 2 days); approved by Gawon Yi at 4:07 PM ET. Payments row 1, kind <code>invoice</code>.</td><td class="num neg">&minus;$840.00</td><td class="num">$2,560.00</td></tr>
+          <tr><td>Ticket 102</td><td>Paid September rent for lease 1 (Chapel Street shop) to Elm City Properties, due 2026-09-02. Request 2, prepared by Accounting after Facilities verified the notice; approved by Gawon Yi at 4:08 PM ET. Payments row 2, kind <code>rent</code>.</td><td class="num neg">&minus;$2,400.00</td><td class="num">$160.00</td></tr>
+          <tr><td>Ticket 103</td><td>No money moved. Price quote only ($1,044.00 for 20, or $464.00 for the 8 in stock); no purchase order, since a 12-unit restock ($264.00) would not fit in $160.00.</td><td class="num zero">$0.00</td><td class="num">$160.00</td></tr>
+          <tr class="total"><td>Ending balance</td><td>$3,400.00 &minus; $840.00 &minus; $2,400.00 &minus; $0.00</td><td class="num neg">&minus;$3,240.00</td><td class="num">$160.00</td></tr>
         </tbody>
       </table>
-      <p class="note"><span class="ok">Reconciled.</span> <code>cash_accounts</code> in <code>data/campus_customs_new.db</code> shows checking = $160.00 (as of 2026-08-31); the <code>payments</code> table holds exactly two rows totaling $3,240.00, both approved by Gawon Yi; both payment requests are approved and none are pending or rejected. Rent was paid before the vendor invoice, which is the spending order the shop rules ask for.</p>
-      <p class="note">Why the order is not a risk in either direction: in the earlier run 2 the invoice was paid first ($3,400.00 &rarr; $2,560.00) and rent still fit ($2,560.00 &ge; $2,400.00). Since then the server holds back rent due within 7 days before accepting any other payment request, so an invoice that would leave rent uncovered is refused regardless of the order tickets are run in.</p>
+      <p class="note"><span class="ok">Reconciled.</span> <code>cash_accounts</code> in <code>data/campus_customs_new.db</code> shows checking = $160.00 (as of 2026-08-31); the <code>payments</code> table holds exactly two rows totaling $3,240.00, both approved by Gawon Yi; both payment requests are approved and none are pending or rejected.</p>
+      <p class="note">Rent first: the invoice was paid before rent in this run, but only after the server and Accounting confirmed that rent due within 7 days would still be covered. If it had not been, <code>request_invoice_payment</code> would have refused (tested with checking at $3,000.00: refused).</p>
     </div>
   </section>
 
@@ -328,58 +328,67 @@
     <div class="card">
       <h2>Reflection</h2>
       <div class="refl">
-      <p class="legend">Evidence: the Expected/Actual sections on the ticket tabs, the Cash tab, and <code>output/audit_trail.json</code>. Final clean run (reset 1:45 PM ET): t103-04635cf5, t102-4ac81e5f, t101-82446e08. Earlier runs the same day: run 1 (t101-379f4cf0, t102-802de7c2, t103-8cb082a8) and run 2 (t101-0c6826ff, t102-08fbf1ce, t103-3283da3e).</p>
+      <p class="legend">Evidence: the Expected/Actual sections on the ticket tabs, the Cash tab, and <code>output/audit_trail.json</code>. Final clean run (reset 4:05 PM ET): t101-bb383005, t102-bd2ef340, t103-0b08310b. Earlier runs the same day: run 1 (reset 11:21 AM), run 2 (1:10 PM), run 3 (1:45 PM); the run history on each ticket tab lists their ids.</p>
 
       <h3>1. How well did each agent perform?</h3>
-      <p>I graded each agent on four things I can check in the audit trail: <b>(a) facts</b>: does every number it used match a tool result from the database? <b>(b) routing</b>: did it call only the agents and tools the ticket needed (hand-offs, tool calls, tokens)? <b>(c) rules</b>: no money without a human, rent first, orders held behind unpaid bills, discount limits. <b>(d) finish</b>: did the requester get an answer and the ticket the right status? Facts were never the problem: across all three runs no agent invented a number, and cash ended at the database's $160.00. The differences were in routing and finish.</p>
+      <p>I graded each agent on four things I can check in the audit trail: <b>(a) facts</b>: does every number it used match a tool result from the database? <b>(b) routing</b>: did it call only the agents and tools the ticket needed (hand-offs, tool calls, tokens)? <b>(c) rules</b>: no money without a human, rent first, orders held behind unpaid bills, discount limits. <b>(d) finish</b>: did the requester get a correct answer and the ticket the right status? Facts were never the problem: in all four runs no agent invented a number, and cash always ended at the database's $160.00. Routing, rules, and finish are where runs differed, and each failure led to a fix (section "Problems found and fixed").</p>
       <table>
         <thead><tr><th>Ticket</th><th>Agent</th><th>Grade and why (final run)</th></tr></thead>
         <tbody>
-          <tr><td>101</td><td><b>Inventory</b></td><td><span class="grade g-a">A</span>4 tool calls. S = 0, and <code>list_open_invoices</code> showed invoice 501 is already the reprint of this tee, so no duplicate order; also found the 5-day lead time.</td></tr>
-          <tr><td>101</td><td><b>Accounting</b></td><td><span class="grade g-a">A</span>Created request 2 ($840.00) on the first ask, after the rent check (<code>list_leases</code>: next rent 2026-10-02, $0 held back) and the cash check ($1,000.00). In run 2 it needed two hand-offs because it was only asked to "confirm"; the Boss prompt now asks for the action.</td></tr>
-          <tr><td>101</td><td><b>Customer Service</b></td><td><span class="grade g-b">B+</span>Honest reply offering M/L/XL, no internal finances. It still gives no restock timing even though Inventory found the 5-day lead time.</td></tr>
-          <tr><td>101</td><td><b>Boss</b></td><td><span class="grade g-b">B+</span>Right first pick, Customer Service included this time, right status. But every hand-off started at the Boss, so Inventory never passed the bill to Accounting directly as planned. In run 2 the same Boss skipped Customer Service entirely; routing varies from run to run.</td></tr>
-          <tr><td>102</td><td><b>Facilities</b></td><td><span class="grade g-a">A</span>Matched requester, $2,400.00, due 2026-09-02 and "2 days" to lease 1, checked for an earlier rent payment, and handed the money to Accounting. In run 1 it blocked the ticket because my prompt demanded an amount the email never gives.</td></tr>
-          <tr><td>102</td><td><b>Accounting</b></td><td><span class="grade g-a">A</span>Rent check, duplicate check, cash check, request 1 for the lease amount. The cheapest ticket: 2 hand-offs, 17 tool calls, 25,620 tokens.</td></tr>
-          <tr><td>103</td><td><b>Accounting</b></td><td><span class="grade g-a">A&minus;</span>Stayed inside its 10% authority and let <code>quote_bulk_discount</code> do the math ($52.20, $1,044.00, $30.20 margin, above the $33.00 floor). It did not check stock itself; the Boss had to call Inventory.</td></tr>
-          <tr><td>103</td><td><b>Inventory / CS / Boss</b></td><td><span class="grade g-b">B+</span>Inventory was complete (8 on hand, 12 short, 5 lead days). Customer Service asked the club how to proceed but again gave no timing. The Boss used 16 model calls and 40,589 tokens, the most of any ticket, for a quote that moves no money.</td></tr>
+          <tr><td>101</td><td><b>Inventory</b></td><td><span class="grade g-a">A</span>S = 0; invoice 501 is already the reprint of this tee, so no duplicate order; found the 5-day lead time; handed the bill to Accounting asking it to <i>prepare</i> the payment.</td></tr>
+          <tr><td>101</td><td><b>Accounting</b></td><td><span class="grade g-a">A</span>Rent check before paying the vendor: $3,400.00 &minus; $840.00 = $2,560.00 still covers $2,400.00 rent due in 2 days; then request 1. In run 2 the same check was missing.</td></tr>
+          <tr><td>101</td><td><b>Customer Service</b></td><td><span class="grade g-a">A&minus;</span>Honest reply with L/M/XL offered and no internal finances. It looked up the 5-day lead time but correctly gave no date, since the reprint has no start date in the data.</td></tr>
+          <tr><td>101</td><td><b>Boss</b></td><td><span class="grade g-a">A</span>Right first pick, the planned delegations, and the reply saved before awaiting approval. In run 2 the same Boss skipped Customer Service, which is why the server now enforces it.</td></tr>
+          <tr><td>102</td><td><b>Facilities</b></td><td><span class="grade g-a">A</span>3 tool calls: verified landlord, amount, and "due in 2 days" against lease 1 and checked for an earlier rent payment, then handed the money to Accounting. In run 1 it blocked the ticket because my prompt demanded an amount the email never gives.</td></tr>
+          <tr><td>102</td><td><b>Accounting / Boss</b></td><td><span class="grade g-a">A</span>Accounting checked cash ($2,560.00), the lease, and duplicates and created request 2. The cheapest ticket: 2 hand-offs, 16 tool calls, 30,444 tokens.</td></tr>
+          <tr><td>103</td><td><b>Accounting</b></td><td><span class="grade g-a">A</span>Quoted both the full order ($52.20 &times; 20 = $1,044.00) and the 8 in stock on their own ($58.00 list, $464.00) with <code>quote_bulk_discount</code>, and brought in Inventory itself.</td></tr>
+          <tr><td>103</td><td><b>Customer Service / Boss</b></td><td><span class="grade g-a">A&minus;</span>The reply is correct and says why the 8 alone are at list. Customer Service re-ran both quotes it had already been given (4 quote calls where 2 would do). In run 3 this reply broke the 10-unit rule; the tool now prevents that.</td></tr>
         </tbody>
       </table>
 
       <h3>2. Actual vs. expected, ticket by ticket</h3>
       <ul class="plain">
-        <li><b>Ticket 101.</b> Plan: boss &rarr; inventory &rarr; accounting, then boss &rarr; customer_service. Final run: boss &rarr; inventory, boss &rarr; accounting, boss &rarr; customer_service. Same agents, same request ($840.00), same end state, and the planned customer reply now exists. The shape differed: the Boss did the routing itself instead of Inventory handing the bill to Accounting. The three runs of 101 produced three different delegation patterns, so I treat the plan as a description of who must be involved, not a fixed script.</li>
-        <li><b>Ticket 102.</b> Plan: boss &rarr; facilities &rarr; accounting with a $2,400.00 rent request. Final run: identical path, with Accounting adding a rent check (<code>list_leases</code>) and a duplicate check (<code>list_payments</code>), and $3,400.00 &rarr; $1,000.00 after approval. The big difference was run 1, where Facilities refused to verify a notice with no dollar amount.</li>
-        <li><b>Ticket 103.</b> Plan: boss &rarr; accounting &rarr; inventory, boss &rarr; customer_service, a 12-unit order refused for cash, resolved with the quote. Final run: the same $1,044.00 quote and resolution with cash unchanged, but the Boss called Inventory itself and no order was attempted. Because 103 ran first this time, a $264.00 order would have fit ($1,000.00 available after holding back rent) and would have left too little for invoice 501 later, so not ordering on an unaccepted quote was the better call.</li>
+        <li><b>Ticket 101.</b> Plan: boss &rarr; inventory &rarr; accounting, then boss &rarr; customer_service. Final run: exactly that, with the same $840.00 request and $3,400.00 &rarr; $2,560.00 after approval. The only additions were Accounting's rent check and no restock date in the reply. Across runs, 101 took three different routing shapes before the final one, so I read the plan as who must be involved rather than a fixed script.</li>
+        <li><b>Ticket 102.</b> Plan: boss &rarr; facilities &rarr; accounting with a $2,400.00 rent request. Final run: identical, $2,560.00 &rarr; $160.00, lease next_due moved to 2026-10-02. The only real difference was run 1, where Facilities would not verify a notice without a dollar amount.</li>
+        <li><b>Ticket 103.</b> Plan: boss &rarr; accounting &rarr; inventory, boss &rarr; customer_service, a 12-unit order refused for cash, resolved with the quote. Final run: the same delegations and $1,044.00 quote, resolved with cash unchanged. No restock was attempted (Accounting stopped it before the server had to), and the reply added a list-price option for the 8 in stock, which the plan did not foresee.</li>
       </ul>
-      <p>Overall, the plan was right about <b>which agents each ticket needs</b> (Facilities skipped on 101 and 103; Inventory and Customer Service skipped on 102 in every run). It was wrong about <b>how literally agents read their rules</b> (run 1 of 102 and 103), <b>how much intent survives a hand-off</b> (run 2 of 101), and <b>who does the routing</b> (in the final run only 102 kept a specialist-to-specialist hand-off).</p>
+      <p>Overall, in the final run the plan held exactly for <b>who calls whom</b> on all three tickets, including the three specialist-to-specialist hand-offs, and the agents I planned to skip were skipped. What the plan did not predict was <b>how literally agents read their rules</b> (run 1), <b>how much intent survives a hand-off</b> (run 2), and <b>how a correct quote can turn into a wrong price in the customer's reply</b> (run 3).</p>
 
       <h3>Human approvals by ticket</h3>
       <table>
         <thead><tr><th>Ticket</th><th>Request</th><th>What a person approved</th><th style="text-align:right">Checking</th></tr></thead>
         <tbody>
-          <tr><td>101</td><td>Request 2, invoice</td><td>$840.00 to Bulldog Print Co for invoice 501, approved by Gawon Yi at 1:50 PM ET</td><td class="num">$1,000.00 &rarr; $160.00</td></tr>
-          <tr><td>102</td><td>Request 1, rent</td><td>$2,400.00 to Elm City Properties for lease 1, approved by Gawon Yi at 1:49 PM ET</td><td class="num">$3,400.00 &rarr; $1,000.00</td></tr>
-          <tr><td>103</td><td>None</td><td>No approval needed: a 10% quote is within Accounting's authority and moves no money</td><td class="num">$3,400.00</td></tr>
+          <tr><td>101</td><td>Request 1, invoice</td><td>$840.00 to Bulldog Print Co for invoice 501, approved by Gawon Yi at 4:07 PM ET</td><td class="num">$3,400.00 &rarr; $2,560.00</td></tr>
+          <tr><td>102</td><td>Request 2, rent</td><td>$2,400.00 to Elm City Properties for lease 1, approved by Gawon Yi at 4:08 PM ET</td><td class="num">$2,560.00 &rarr; $160.00</td></tr>
+          <tr><td>103</td><td>None</td><td>No approval needed: a 10% quote is within Accounting's authority and moves no money</td><td class="num">$160.00</td></tr>
         </tbody>
       </table>
 
-      <h3>Rent first, and what "resolved" means for 101</h3>
-      <p><b>Rent first.</b> The rules put rent ahead of vendor bills. In run 2 the invoice was paid before rent ($3,400.00 &rarr; $2,560.00, rent still fit at $2,400.00), but the log showed Accounting never actually checked the lease before preparing it: the rule held by luck. I added a <code>list_leases</code> tool and a server check that holds back rent due within 7 days before accepting any invoice or purchase request, and Accounting now writes the rent check into its findings. In the final run rent was paid first, and when 101 came up the check recorded "no unrequested rent due within 7 days".</p>
-      <p><b>Ticket 101.</b> Size S is still 0 on the shelf after the run. "Resolved" here means the shop did everything it can do today: the unpaid bill blocking the reprint was paid with approval, the reprint is already on order with Bulldog Print Co (invoice 501), and Tauhid has an answer with sizes he can take now. The shirt arriving is outside this system (problem 5A below). Since run 2 showed a ticket could close with no reply, the server now refuses to set a customer order to awaiting approval or resolved until a "Customer reply:" note exists.</p>
+      <h3>Problems found and fixed</h3>
+      <table>
+        <thead><tr><th>Found in</th><th>Problem</th><th>Fix</th><th>Verified in</th></tr></thead>
+        <tbody>
+          <tr><td>Run 1, 102</td><td>Facilities refused a rent email that states no amount</td><td>facilities.md: check an amount only if the notice gives one</td><td>Runs 2&ndash;4</td></tr>
+          <tr><td>Run 1, 103</td><td>Boss left a finished quote open while waiting for the club</td><td>boss.md: a price override is resolved once the in-policy quote is saved</td><td>Runs 2&ndash;4</td></tr>
+          <tr><td>Run 2, 101</td><td>Resolved with no reply to the customer; Accounting asked to "confirm" instead of "prepare"</td><td>Server: a customer order or price override cannot wait for approval or resolve without a saved reply; boss.md: delegations ask for the action</td><td>Runs 3&ndash;4</td></tr>
+          <tr><td>Run 2, 101</td><td>Invoice paid before rent without checking the lease (rent fit by luck)</td><td><code>list_leases</code> tool; server holds back rent due within 7 days before any invoice or purchase; Accounting writes the rent check</td><td>Runs 3&ndash;4 (run 4: "$2,560.00 still covers rent")</td></tr>
+          <tr><td>Run 3, 103</td><td>Reply offered the 8 in-stock hoodies at the bulk price, breaking the 10-unit rule</td><td><code>quote_bulk_discount</code> enforces the policy (under 10 units: list price); Accounting quotes partial quantities separately; Customer Service and the Boss check reply prices against the quotes</td><td>Run 4</td></tr>
+        </tbody>
+      </table>
+      <p><b>What "resolved" means for 101.</b> Size S is still 0 on the shelf after the run. Resolved means the shop did everything it can do today: the unpaid bill blocking the reprint was paid with approval, the reprint is already on order with Bulldog Print Co (invoice 501), and Tauhid has an answer with sizes he can take now. The shirt arriving is outside this system (problem 5A below).</p>
 
       <h3>3. What would have been simpler as one agent with tools</h3>
       <ul class="plain">
         <li><b>Ticket 101 in one loop.</b> One agent with <code>check_stock_by_sku_size</code>, <code>list_open_invoices</code>, <code>list_leases</code>, <code>get_cash_balance</code>, <code>request_invoice_payment</code>, and <code>add_ticket_note</code> could go from "S = 0" to "invoice 501 blocks it" to "prepare $840.00 and reply to Tauhid" without three hand-offs. The run 2 misunderstanding ("confirm" instead of "prepare") cannot happen when one agent holds the whole context.</li>
-        <li><b>Less repeated work.</b> Every delegated agent starts cold. In the final run <code>get_ticket</code> ran 11 times and <code>get_shop_date</code> 7 times for 3 tickets, and the run used 41 model calls, 57 tool calls, and about 105,000 tokens. Ticket 103, which moves no money, was the most expensive.</li>
+        <li><b>Less repeated work.</b> Every delegated agent starts cold. In the final run <code>get_ticket</code> and <code>get_shop_date</code> each ran 6 times for 3 tickets, 103 ran the same two quotes twice, and the run used 44 model calls, 55 tool calls, and about 115,000 tokens. Ticket 101 alone used 45,393 tokens.</li>
         <li><b>102 and 103 are straight lines.</b> 102 is verify &rarr; request; 103 is price &rarr; stock &rarr; reply. Neither needed a second opinion.</li>
-        <li><b>Easier to debug.</b> The run 1 failures came from rules in two prompt files (facilities.md, boss.md) and the run 2 gap from the Boss's routing. One prompt is one place to fix, and one agent would not route differently from run to run.</li>
-        <li><b>Safety would not suffer.</b> What protects the cash (agents cannot execute payments, amounts come from the database, rent is held back, a customer order needs a reply) is enforced in the MCP server and the approve route, not by the agent split. The team adds least privilege (Facilities cannot request payments) and short role prompts, which matter more as the shop grows.</li>
+        <li><b>Easier to debug.</b> The five problems above came from rules spread over four prompt files and from routing that changed from run to run. One prompt is one place to fix.</li>
+        <li><b>Safety would not suffer.</b> What protects the shop (agents cannot execute payments, amounts come from the database, rent is held back, a customer order needs a reply, the discount policy is enforced by the quote tool) lives in the MCP server and the approve route, not in the agent split. The team adds least privilege (Facilities cannot request payments) and short role prompts, which matter more as the shop grows.</li>
       </ul>
 
       <h3>4. Three new problems this team can already solve</h3>
       <div class="newp"><h4>A. A student orders 2 Yale Caps</h4>
-        <p>A <code>customer_order</code> for CC-HAT-BLUE, size OS. Boss &rarr; Inventory (<code>check_stock_by_sku_size</code>: 40 on hand, Aisle C; <code>list_open_invoices</code>: nothing blocking) &rarr; Boss &rarr; Customer Service (<code>get_sku_pricing</code>: $22.00 each) saves the reply. No money moves, so it resolves without approval: ticket 101 without the blocker.</p></div>
+        <p>A <code>customer_order</code> for CC-HAT-BLUE, size OS. Boss &rarr; Inventory (<code>check_stock_by_sku_size</code>: 40 on hand, Aisle C; <code>list_open_invoices</code>: nothing blocking) &rarr; Boss &rarr; Customer Service (<code>quote_bulk_discount</code> for 2 units returns list price, $22.00 each, $44.00) saves the reply. No money moves, so it resolves without approval: ticket 101 without the blocker.</p></div>
       <div class="newp"><h4>B. A fake rent notice</h4>
         <p>An email from "Elm City Property Mgmt" asking for $2,600 tomorrow. Facilities runs <code>get_lease_rent_due</code> for lease 1: landlord Elm City Properties, $2,400.00, next due 2026-10-02 after our September payment. Name, amount, and date all mismatch, so it does not pass the notice to Accounting and the Boss leaves it open for a person. Even if an agent tried, <code>request_rent_payment</code> takes the amount from the lease, not the email.</p></div>
       <div class="newp"><h4>C. Restock the Crest Mug</h4>
@@ -387,7 +396,7 @@
 
       <h3>5. Three new problems it cannot solve, and what it would need</h3>
       <div class="newp"><h4>A. Selling the hoodies and taking the club's money</h4>
-        <p>If the Yale AI Club takes the 103 quote and pays $1,044.00, nothing can record it: no tool adds money to <code>cash_accounts</code>, lowers <code>inventory</code> when items leave, or adds stock when the 101 reprint arrives. Cash only goes down, which is why ticket 103 could not fund its own restock and ticket 101 cannot be fulfilled inside the system. <b>Needed:</b> MCP tools <code>record_sale(sku, size, qty, unit_price)</code> (new sales table, lowers inventory, raises checking), <code>take_deposit(ticket_id, amount)</code>, and <code>receive_shipment(po_or_invoice_id)</code>; a <b>Sales agent</b> for point of sale, deposits, and refunds, with refunds needing human approval.</p></div>
+        <p>If the Yale AI Club accepts the 103 quote and pays $1,044.00 (or $464.00 for the 8), nothing can record it: no tool adds money to <code>cash_accounts</code>, lowers <code>inventory</code> when items leave, or adds stock when the 101 reprint arrives. Cash only goes down, which is why ticket 103 could not fund its own restock and ticket 101 cannot be fulfilled inside the system. <b>Needed:</b> MCP tools <code>record_sale(sku, size, qty, unit_price)</code> (new sales table, lowers inventory, raises checking), <code>take_deposit(ticket_id, amount)</code>, and <code>receive_shipment(po_or_invoice_id)</code>; a <b>Sales agent</b> for point of sale, deposits, and refunds, with refunds needing human approval.</p></div>
       <div class="newp"><h4>B. Talking to the outside world</h4>
         <p>Tickets exist only because they were already in the database, and replies exist only as ticket notes: Tauhid and the club never receive anything, and nobody tells Bulldog Print Co to start the reprint after invoice 501 is paid. <b>Needed:</b> an inbox connector with <code>read_inbox</code> and <code>create_ticket</code>, <code>send_email(to, body)</code> gated by human review, and <code>place_vendor_order(vendor_id, po)</code>; an <b>Intake agent</b> that turns emails into tickets and screens spoofed senders like 4B.</p></div>
       <div class="newp"><h4>C. Planning cash before it runs out</h4>

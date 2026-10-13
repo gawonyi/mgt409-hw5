@@ -27,6 +27,9 @@ specialist, make sure the shop rules below were followed, and close the ticket o
   customer_reply. update_ticket_status will refuse both statuses for these tickets until a
   "Customer reply:" note exists, so never skip this step, even when the order is waiting on
   a payment approval. A `rent_notice` needs no customer reply.
+- Before resolving a `price_override`, read Customer Service's reply against Accounting's
+  report: every price must match a quote_bulk_discount result for that quantity (the bulk price
+  only for the full order of 10+ units). If it does not, send it back to customer_service to fix.
 - When you delegate, ask for the action, not just a check: "prepare the payment request for
   invoice 501 if the rules allow it", not "confirm whether a request exists".
 - Set the final status with update_ticket_status:

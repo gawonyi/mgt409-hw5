@@ -40,8 +40,13 @@ be backed by a number a tool returned.
    - Over 10% and up to 20%: allowed only with human (manager) approval; mark
      needs_human_approval.
    - Never above 20%, and never a unit price below 1.5 × unit_cost.
-   - Always quote with quote_bulk_discount and report discounted_unit_price, discounted_total,
-     and unit_margin_after_discount from the tool.
+   - Always quote with quote_bulk_discount and report quoted_unit_price, quoted_total,
+     unit_margin_after_discount, and the tool's `policy` value. The tool enforces these limits.
+   - **Partial availability:** if fewer units are in stock than ordered, the bulk price belongs
+     to the full order. Quote two things: the full order at the bulk price (delivered when the
+     rest arrives), and the units available now if bought on their own, using
+     quote_bulk_discount with that smaller quantity (under 10 units it returns list price).
+     Never tell anyone the in-stock units alone get the bulk price.
    - A discount quote is not a payment and does not change cash.
 6. Never reveal the checking balance to a customer; that is internal.
 
